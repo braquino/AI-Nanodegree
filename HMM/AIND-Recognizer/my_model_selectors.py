@@ -1,7 +1,6 @@
 import math
 import statistics
 import warnings
-
 import numpy as np
 from hmmlearn.hmm import GaussianHMM
 from sklearn.model_selection import KFold
@@ -77,7 +76,25 @@ class SelectorBIC(ModelSelector):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection based on BIC scores
-        raise NotImplementedError
+        n_samples = len(self.X)
+        n_param = len(self.X[0])
+        print(self.X)
+        print(self.lengths)
+
+        min_BIC = float("inf")
+        best_n = 3
+        for n in range(self.min_n_components, self.max_n_components + 1):
+            try:
+                p = n_param * n
+                logL = self.base_model(n).score(self.X, self.lengths)
+                BIC = -2 * logL + p * math.log(n_samples)
+            except:
+                BIC = float("inf")
+            print((n, BIC))
+            if BIC < min_BIC:
+                min_BIC = BIC
+                best_n = n
+        return self.base_model(best_n)
 
 
 class SelectorDIC(ModelSelector):
